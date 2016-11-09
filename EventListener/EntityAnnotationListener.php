@@ -19,6 +19,11 @@ class EntityAnnotationListener
      */
     protected $reader;
 
+    /**
+     * @var RequestToEntityManager
+     */
+    private $manager;
+
     public function __construct(Reader $reader, RequestToEntityManager $manager)
     {
         $this->reader = $reader;

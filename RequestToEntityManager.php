@@ -77,13 +77,17 @@ class RequestToEntityManager
                 $annotations = $this->reader->getPropertyAnnotations($prop);
                 foreach ($annotations as $annotation) {
                     if ($annotation instanceof ManyToOne || $annotation instanceof OneToMany || $annotation instanceof ManyToMany || $annotation instanceof OneToOne) {
-                        $o = $this->entityManager->getRepository($annotation->targetEntity)->find($value['id']);
+                        $targetEntity = class_exists($annotation->targetEntity)
+                            ? $annotation->targetEntity
+                            : $rf->getNamespaceName().'\\'.$annotation->targetEntity;
+                        $o = $this->entityManager->getRepository($targetEntity)->find($value['id']);
+
                         if (!$o) {
                             throw new EntityNotFoundException(sprintf('%s not found', $prop->getName()));
                         }
                         $accessor->setValue($object, $prop->getName(), $o);
+                        continue 2;
                     }
-                    continue 2;
                 }
             }
 
