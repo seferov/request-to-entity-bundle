@@ -5,11 +5,10 @@ namespace Seferov\Bundle\RequestToEntityBundle\EventListener;
 use Doctrine\Common\Annotations\Reader;
 use Seferov\Bundle\RequestToEntityBundle\Annotation\Entity;
 use Seferov\Bundle\RequestToEntityBundle\RequestToEntityManager;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 
 /**
- * Class EntityAnnotationListener
+ * Class EntityAnnotationListener.
  *
  * @author Farhad Safarov <farhad.safarov@gmail.com>
  */
@@ -20,15 +19,10 @@ class EntityAnnotationListener
      */
     protected $reader;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    public function __construct(Reader $reader, RequestStack $requestStack)
+    public function __construct(Reader $reader, RequestToEntityManager $manager)
     {
         $this->reader = $reader;
-        $this->requestStack = $requestStack;
+        $this->manager = $manager;
     }
 
     public function onKernelController(FilterControllerEvent $event)
@@ -52,11 +46,10 @@ class EntityAnnotationListener
         }
 
         // Create object and set attributes from request
-        $object = new $class;
-        $manager = new RequestToEntityManager($this->requestStack, $this->reader);
-        $manager->handle($object);
+        $object = new $class();
+        $this->manager->handle($object);
 
-        $request = $this->requestStack->getCurrentRequest();
+        $request = $this->manager->getRequest();
         $request->attributes->set(lcfirst((new \ReflectionClass($object))->getShortName()), $object);
     }
 }

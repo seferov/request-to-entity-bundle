@@ -1,10 +1,10 @@
 services:
     seferov_request_to_entity.annotation_listener:
         class: Seferov\Bundle\RequestToEntityBundle\EventListener\EntityAnnotationListener
-        arguments: ['@annotation_reader', '@request_stack']
+        arguments: ['@annotation_reader', '@seferov_request_to_entity.manager']
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: onKernelController, priority: 0 }
 
     seferov_request_to_entity.manager:
         class: Seferov\Bundle\RequestToEntityBundle\RequestToEntityManager
-        arguments: ['@request_stack', '@annotation_reader']
+        arguments: ['@request_stack', '@annotation_reader', '@doctrine.orm.entity_manager']
