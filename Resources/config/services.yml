@@ -7,4 +7,4 @@ services:
 
     seferov_request_to_entity.manager:
         class: Seferov\Bundle\RequestToEntityBundle\RequestToEntityManager
-        arguments: ['@request_stack', '@annotation_reader', '@doctrine.orm.entity_manager']
+        arguments: ['@request_stack', '@annotation_reader', '@doctrine.orm.entity_manager', '@event_dispatcher']

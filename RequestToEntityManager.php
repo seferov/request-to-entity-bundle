@@ -9,6 +9,8 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Seferov\Bundle\RequestToEntityBundle\Annotation\RequestOptions;
+use Seferov\Bundle\RequestToEntityBundle\Event\EntityNotFoundEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -36,11 +38,17 @@ class RequestToEntityManager
      */
     private $entityManager;
 
-    public function __construct(RequestStack $requestStack, Reader $reader, EntityManager $entityManager)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(RequestStack $requestStack, Reader $reader, EntityManager $entityManager, EventDispatcherInterface $eventDispatcher)
     {
         $this->request = $requestStack->getCurrentRequest();
         $this->reader = $reader;
         $this->entityManager = $entityManager;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -80,10 +88,10 @@ class RequestToEntityManager
                         $targetEntity = class_exists($annotation->targetEntity)
                             ? $annotation->targetEntity
                             : $rf->getNamespaceName().'\\'.$annotation->targetEntity;
-                        $o = $this->entityManager->getRepository($targetEntity)->find($value['id']);
+                        $o = $this->entityManager->getRepository($targetEntity)->find(intval($value['id']));
 
                         if (!$o) {
-                            throw new EntityNotFoundException(sprintf('%s not found', $prop->getName()));
+                            $this->eventDispatcher->dispatch(EntityNotFoundEvent::NAME, new EntityNotFoundEvent($targetEntity));
                         }
                         $accessor->setValue($object, $prop->getName(), $o);
                         continue 2;
