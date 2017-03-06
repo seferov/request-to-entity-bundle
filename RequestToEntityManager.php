@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Doctrine\Common\Annotations\Reader;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * Class RequestToEntityManager.
@@ -43,12 +44,18 @@ class RequestToEntityManager
      */
     private $eventDispatcher;
 
-    public function __construct(RequestStack $requestStack, Reader $reader, EntityManager $entityManager, EventDispatcherInterface $eventDispatcher)
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $authorizationChecker;
+
+    public function __construct(RequestStack $requestStack, Reader $reader, EntityManager $entityManager, EventDispatcherInterface $eventDispatcher, AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->request = $requestStack->getCurrentRequest();
         $this->reader = $reader;
         $this->entityManager = $entityManager;
         $this->eventDispatcher = $eventDispatcher;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
@@ -76,7 +83,13 @@ class RequestToEntityManager
             /** @var RequestOptions $requestOptions */
             $requestOptions = $this->reader->getPropertyAnnotation($prop, RequestOptions::class);
 
+            // Skip readonly properties
             if ($requestOptions && $requestOptions->readOnly) {
+                continue;
+            }
+
+            // Skip properties with has no authorization to change for current user
+            if ($requestOptions && count($requestOptions->roles) && !$this->authorizationChecker->isGranted($requestOptions->roles)) {
                 continue;
             }
 

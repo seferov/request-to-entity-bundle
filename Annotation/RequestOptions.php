@@ -3,7 +3,7 @@
 namespace Seferov\Bundle\RequestToEntityBundle\Annotation;
 
 /**
- * Class RequestOptions
+ * Class RequestOptions.
  *
  * @Annotation
  * @Target({"PROPERTY", "METHOD"})
@@ -18,4 +18,9 @@ class RequestOptions
     public $readOnly = false;
 
     public $transformer;
+
+    /**
+     * @var array
+     */
+    public $roles = [];
 }
