@@ -94,6 +94,10 @@ class RequestToEntityManager
             }
 
             $value = $this->request->get($prop->getName());
+            if (is_object($value)) {
+                continue;
+            }
+            
             if (isset($value['id'])) {
                 $annotations = $this->reader->getPropertyAnnotations($prop);
                 foreach ($annotations as $annotation) {
