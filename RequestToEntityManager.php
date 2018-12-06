@@ -2,6 +2,7 @@
 
 namespace Seferov\Bundle\RequestToEntityBundle;
 
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Mapping\ManyToMany;
@@ -77,7 +78,7 @@ class RequestToEntityManager
     {
         $accessor = PropertyAccess::createPropertyAccessor();
 
-        $rf = new \ReflectionObject($object);
+        $rf = ClassUtils::newReflectionObject($object);
 
         foreach ($rf->getProperties() as $prop) {
             /** @var RequestOptions $requestOptions */
