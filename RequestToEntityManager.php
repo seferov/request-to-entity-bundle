@@ -81,6 +81,10 @@ class RequestToEntityManager
         $rf = ClassUtils::newReflectionObject($object);
 
         foreach ($rf->getProperties() as $prop) {
+            if (!$this->request->request->has($prop->getName())) {
+                continue;
+            }
+            
             /** @var RequestOptions $requestOptions */
             $requestOptions = $this->reader->getPropertyAnnotation($prop, RequestOptions::class);
 
