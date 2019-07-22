@@ -60,7 +60,7 @@ class RequestToEntityManager
     }
 
     /**
-     * @return null|Request
+     * @return Request|null
      */
     public function getRequest()
     {
@@ -98,7 +98,7 @@ class RequestToEntityManager
             if (is_object($value)) {
                 continue;
             }
-            
+
             if (isset($value['id'])) {
                 $annotations = $this->reader->getPropertyAnnotations($prop);
                 foreach ($annotations as $annotation) {
@@ -121,8 +121,11 @@ class RequestToEntityManager
                 $value = call_user_func($requestOptions->transformer, $value);
             }
 
-            if ($value !== null && $accessor->isWritable($object, $prop->getName())) {
-                $accessor->setValue($object, $prop->getName(), $value);
+            try {
+                $reflectionProperty = $rf->getProperty($prop->getName());
+                $reflectionProperty->setAccessible(true);
+                $reflectionProperty->setValue($object, $value);
+            } catch (\ReflectionException $e) {
             }
         }
 
