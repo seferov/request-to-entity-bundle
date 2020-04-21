@@ -3,7 +3,7 @@
 namespace Seferov\Bundle\RequestToEntityBundle;
 
 use Doctrine\Common\Util\ClassUtils;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -18,11 +18,6 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 use Doctrine\Common\Annotations\Reader;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-/**
- * Class RequestToEntityManager.
- *
- * @author Farhad Safarov <farhad.safarov@gmail.com>
- */
 class RequestToEntityManager
 {
     /**
@@ -36,7 +31,7 @@ class RequestToEntityManager
     private $reader;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $entityManager;
 
@@ -50,7 +45,7 @@ class RequestToEntityManager
      */
     private $authorizationChecker;
 
-    public function __construct(RequestStack $requestStack, Reader $reader, EntityManager $entityManager, EventDispatcherInterface $eventDispatcher, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(RequestStack $requestStack, Reader $reader, EntityManagerInterface $entityManager, EventDispatcherInterface $eventDispatcher, AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->request = $requestStack->getCurrentRequest();
         $this->reader = $reader;
